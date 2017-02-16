@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
-public class SyncOptionsFragment extends Fragment implements OnClickListener, InitiateSyncListener
+public class SyncOptionsFragment extends Fragment implements OnClickListener
 {
 	private MainActivity mActivity;
 	
@@ -56,17 +56,8 @@ public class SyncOptionsFragment extends Fragment implements OnClickListener, In
 	{
 		switch (v.getId()) {
 		case R.id.sync_now_button:
-			LDLN.initiateSync(mActivity, this);
+			LDLN.initiateSync(mActivity, mActivity);
 			break;
-		}
-	}
-
-	@Override
-	public void onInitiateSynchronizationResult(boolean success) {
-		if (success) {
-			Toast.makeText(mActivity, "Successfully Initiated Synchronization!", Toast.LENGTH_LONG).show();
-		} else {
-			Toast.makeText(mActivity, "Error Initiating Synchronization! Please ensure you're connected to a LDLN network and try again...", Toast.LENGTH_LONG).show();
 		}
 	}
 }

@@ -33,6 +33,8 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -40,14 +42,20 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements LoginListener, OnBackStackChangedListener
-{
+public class MainActivity extends Activity implements LoginListener, OnBackStackChangedListener, LDLN.InitiateSyncListener {
 	private ArrayList<FragmentId> mNavItems;
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private ListView mDrawerList;
 	private CharSequence mTitle;
 	private FragmentManager mFragmentManager;
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.action_bar, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -203,9 +211,28 @@ public class MainActivity extends Activity implements LoginListener, OnBackStack
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
 			return true;
 		}
-		// Handle your other action bar items...
 
-		return super.onOptionsItemSelected(item);
+		// Handle other ActionBar Items
+		switch (item.getItemId()) {
+			case R.id.action_refresh:
+				// User chose the "Refresh" action, sync data
+				LDLN.initiateSync(this, this);
+				return true;
+
+			default:
+				// If we got here, the user's action was not recognized.
+				// Invoke the superclass to handle it.
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	public void onInitiateSynchronizationResult(boolean success) {
+		if (success) {
+			Toast.makeText(this, "Successfully Initiated Synchronization!", Toast.LENGTH_LONG).show();
+		} else {
+			Toast.makeText(this, "Error Initiating Synchronization! Please ensure you're connected to a LDLN network and try again...", Toast.LENGTH_LONG).show();
+		}
 	}
 
 	@Override

@@ -19,5 +19,6 @@
     <!-- ObjectTypes Fragment -->
     <string name="empty_object_types_msg">No object types found!</string>
     <string name="object_label_placeholder">Placeholder Type</string>
-    
+    <string name="action_refresh">Sync Data</string>
+
 </resources>
