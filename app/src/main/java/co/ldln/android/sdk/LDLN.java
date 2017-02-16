@@ -38,6 +38,7 @@ import co.ldln.android.LDLNProperties;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmMigration;
+import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 
 /**
  * The primary LDLN SDK API for use in Android applications
@@ -198,10 +199,27 @@ public class LDLN
 									plaintextObjects.add(new PlaintextObject(so, DEK, encryptionIsEnabled));
 								}
 
+								// Decrypt and store in local cache for currently logged in user
 								publishProgress("Optimizing the database");
 								Realm userRealm = Realm.getInstance(getRealmConfig(context, RealmLevel.USER));
 								userRealm.beginTransaction();
-								userRealm.insert(plaintextObjects); // TODO: investigate duplicates being created here
+								for (PlaintextObject obj : plaintextObjects) {
+									// Per LDLN convention, we need to manually check duplicates based
+									// on uuid and timeModifiedSinceCreation with a manual update rule,
+									// and only (1) copy to realm if it doesn't exist, or (2) update in
+									// realm if an older version of the object does exist.
+									//
+									// note:
+									//   userRealm.insert() produces duplicates
+									//   userRealm.copyToRealm() throws RealmPrimaryKeyConstraintException
+									if (userRealm.where(PlaintextObject.class)
+											.equalTo("uuid", obj.getUuid())
+											.lessThanOrEqualTo("timeModifiedSinceCreation", obj.getTimeModifiedSinceCreation())
+											.count() == 0) {
+										userRealm.copyToRealmOrUpdate(plaintextObjects);
+									}
+								}
+
 								userRealm.commitTransaction();
 							}
 							return null;
