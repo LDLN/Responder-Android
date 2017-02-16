@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- General -->
+    <string name="app_name">Responder</string>
+    <string name="title_activity_sample">Responder</string>
+    <string name="create">Create</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <!-- Login Fragment -->
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Log In</string>
+    
+    <!-- SyncFragment Fragment -->
+    <string name="sync_now_button">Synchronize Now</string>
+    
+    <!-- ObjectTypes Fragment -->
+    <string name="empty_object_types_msg">No object types found!</string>
+    <string name="object_label_placeholder">Placeholder Type</string>
+    
+</resources>
