@@ -28,9 +28,14 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentManager.OnBackStackChangedListener;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
@@ -117,12 +122,28 @@ public class MainActivity extends Activity implements LoginListener, OnBackStack
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
 
+		// Register to receive messages broadcast from other parts of the app
+		LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+				new IntentFilter(LDLN.BROADCAST_KEY));
+
 		if (LDLN.isLoggedIn()) {
 			this.openFragment(FragmentId.OBJECT_TYPES, null);
 		} else {
 			this.openFragment(FragmentId.LOG_IN, null);
 		}
 	}
+
+	// Our handler for received LDLN Intents.
+	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// Get extra data included in the Intent
+			LDLN.BroadcastMessageType messageType = (LDLN.BroadcastMessageType) intent.getSerializableExtra("message");
+			if (messageType.equals(LDLN.BroadcastMessageType.SYNCABLE_OBJECTS_REFRESHED)) {
+				refreshFragment();
+			}
+		}
+	};
 
 	private class DrawerItemClickListener implements ListView.OnItemClickListener {
 		@Override
@@ -189,6 +210,13 @@ public class MainActivity extends Activity implements LoginListener, OnBackStack
 	public void setTitle(CharSequence title) {
 		mTitle = title;
 		getActionBar().setTitle(mTitle);
+	}
+
+	@Override
+	protected void onDestroy() {
+		// Unregister since the activity is about to be closed.
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+		super.onDestroy();
 	}
 
 	@Override

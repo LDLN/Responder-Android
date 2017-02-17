@@ -48,7 +48,7 @@ import com.mousebird.maply.SelectedObject;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -60,6 +60,7 @@ import co.ldln.android.sdk.PlaintextObject;
  */
 public class MapFragment extends GlobeMapFragment implements MapController.GestureDelegate, LDLN.ListSyncableObjectsListener {
 	private MainActivity mActivity;
+	private ArrayList<ComponentObject> markers = new ArrayList<>();
 
 	public MapFragment() {
 		// Empty constructor required for fragment subclasses
@@ -251,11 +252,10 @@ public class MapFragment extends GlobeMapFragment implements MapController.Gestu
 		MarkerInfo markerInfo = new MarkerInfo();
 		ComponentObject markersComponentObject = mapControl.addScreenMarker(marker, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
 
-		// TODO: keep list of objects for removal if necessary?
+		// Keep list of objects for removal.
 		// ComponentObject is your handle to the marker in the map controller.
 		// You can use this to enable, disable, and remove your marker from the map.
-//        mapControl.removeObject(markersComponentObject, MaplyBaseController.ThreadMode.ThreadAny);
-		//
+		markers.add(markersComponentObject);
 
 		// Center the map if asked to
 		if (recenterMap) {
@@ -272,6 +272,12 @@ public class MapFragment extends GlobeMapFragment implements MapController.Gestu
 	@Override
 	public void onListSyncableObjectsResult(List<PlaintextObject> plaintextObjects) {
 		if (plaintextObjects != null) {
+			// Remove all existing markers
+			while (markers.size() > 0) {
+				mapControl.removeObject(markers.remove(0), MaplyBaseController.ThreadMode.ThreadAny);
+			}
+
+			// Place new markers
 			for (PlaintextObject po : plaintextObjects) {
 				HashMap<String, String> hashMap = po.getKeyValueMap();
 				if (hashMap.containsKey("Map Location") && !hashMap.get("Map Location").equals("")) {

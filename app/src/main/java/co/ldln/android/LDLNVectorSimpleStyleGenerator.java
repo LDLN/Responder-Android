@@ -58,6 +58,7 @@ public class LDLNVectorSimpleStyleGenerator implements VectorStyleInterface {
     }
 
     public VectorStyle[] stylesForFeature(AttrDictionary attrs, MaplyTileID tileID, String layerName, MaplyBaseController controller) {
+        // TODO: cache these up front to avoid race conditions!
         LDLNVectorSimpleStyleGenerator.VectorStyleSimple style = this.stylesByLayerName.get(layerName);
         if(style == null) {
             int layerOrder = attrs.getInt("layer_order").intValue();

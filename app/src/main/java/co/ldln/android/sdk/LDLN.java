@@ -49,6 +49,8 @@ import io.realm.exceptions.RealmPrimaryKeyConstraintException;
  */
 public class LDLN 
 {
+	public static final String BROADCAST_KEY = "ldln-broadcast";
+
 	private static User USER;
 	private static String USERNAME;
 	private static String DEK;
@@ -167,6 +169,11 @@ public class LDLN
 	{
 		USER = null;
 
+		// Check if encryption is enabled
+		// TODO: replace this with a response from the server rather than local config
+		String encryptionIsEnabledStr = LDLNProperties.getProperty(context, "encryption.enabled");
+		encryptionIsEnabled = (encryptionIsEnabledStr == null || !encryptionIsEnabledStr.trim().toLowerCase().equals("false"));
+
 		new AsyncTask<Void, Void, Boolean>() {
 
 			ProgressDialog dialog = new ProgressDialog(context);
@@ -186,40 +193,21 @@ public class LDLN
 						protected Void doInBackground(Void[] objects) {
 							Realm realm = Realm.getInstance(getRealmConfig(context, RealmLevel.GLOBAL));
 							List<SyncableObject> syncableObjects = realm.where(SyncableObject.class).findAll();
+
 							if (syncableObjects != null) {
-								// TODO: replace this with a response from the server rather than local config
-								String encryptionIsEnabledStr = LDLNProperties.getProperty(context, "encryption.enabled");
-								encryptionIsEnabled = (encryptionIsEnabledStr == null || !encryptionIsEnabledStr.trim().toLowerCase().equals("false"));
-
-								int numDecrypted = 0;
-								int numTotal = syncableObjects.size();
-								List<PlaintextObject> plaintextObjects = new ArrayList<PlaintextObject>(numTotal);
-								for (SyncableObject so : syncableObjects) {
-									publishProgress(numDecrypted++ + " records decrypted of " +  numTotal);
-									plaintextObjects.add(new PlaintextObject(so, DEK, encryptionIsEnabled));
-								}
-
-								// Decrypt and store in local cache for currently logged in user
-								publishProgress("Optimizing the database");
+								// Open database for caching plaintext objects while logged in
 								Realm userRealm = Realm.getInstance(getRealmConfig(context, RealmLevel.USER));
 								userRealm.beginTransaction();
-								for (PlaintextObject obj : plaintextObjects) {
-									// Per LDLN convention, we need to manually check duplicates based
-									// on uuid and timeModifiedSinceCreation with a manual update rule,
-									// and only (1) copy to realm if it doesn't exist, or (2) update in
-									// realm if an older version of the object does exist.
-									//
-									// note:
-									//   userRealm.insert() produces duplicates
-									//   userRealm.copyToRealm() throws RealmPrimaryKeyConstraintException
-									if (userRealm.where(PlaintextObject.class)
-											.equalTo("uuid", obj.getUuid())
-											.lessThanOrEqualTo("timeModifiedSinceCreation", obj.getTimeModifiedSinceCreation())
-											.count() == 0) {
-										userRealm.copyToRealmOrUpdate(plaintextObjects);
-									}
+
+								// Decrypt and store objects in local cache for currently logged in user
+								int numDecrypted = 0;
+								int numTotal = syncableObjects.size();
+								for (SyncableObject so : syncableObjects) {
+									publishProgress(numDecrypted++ + " records decrypted of " +  numTotal);
+									LDLN.cachePlaintextObject(userRealm, so);
 								}
 
+								// Commit the changes to the database
 								userRealm.commitTransaction();
 							}
 							return null;
@@ -258,6 +246,24 @@ public class LDLN
 				return (USER != null);
 			}
 		}.execute();
+	}
+
+	static void cachePlaintextObject(Realm userRealm, SyncableObject so) {
+		// Per LDLN convention, we need to manually check duplicates based
+		// on uuid and timeModifiedSinceCreation with a manual update rule,
+		// and only (1) copy to realm if it doesn't exist, or (2) update in
+		// realm if an older version of the object does exist.
+		//
+		// note:
+		//   userRealm.insert() produces duplicates
+		//   userRealm.copyToRealm() throws RealmPrimaryKeyConstraintException
+		if (userRealm.where(PlaintextObject.class)
+				.equalTo("uuid", so.getUuid())
+				.lessThanOrEqualTo("timeModifiedSinceCreation", so.getTimeModifiedSinceCreation())
+				.count() == 0) {
+			PlaintextObject obj = new PlaintextObject(so, DEK, encryptionIsEnabled);
+			userRealm.copyToRealmOrUpdate(obj);
+		}
 	}
 
 	public interface LoginListener 
@@ -406,5 +412,9 @@ public class LDLN
 	public interface ReadSyncableObjectListener
 	{
 		public void onReadSyncableObjectResult(PlaintextObject plaintextObject);
+	}
+
+	public enum BroadcastMessageType {
+		SYNCABLE_OBJECTS_REFRESHED;
 	}
 }

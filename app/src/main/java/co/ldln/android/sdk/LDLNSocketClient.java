@@ -32,6 +32,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import io.realm.Realm;
@@ -244,6 +246,9 @@ public class LDLNSocketClient extends WebSocketClient
 				// Handling new server objects and server-updated objects here
 				//   new ones get created
 				//   updated ones get overwritten
+				// Open database for caching plaintext objects while logged in
+				Realm userRealm = Realm.getInstance(LDLN.getRealmConfig(mContext, LDLN.RealmLevel.USER));
+				userRealm.beginTransaction();
 				JSONArray newSyncableObjectsToPullJsonArray = (responseJsonObj.isNull("client_unknown_objects")) ? new JSONArray() : responseJsonObj.getJSONArray("client_unknown_objects");
 				for (int i=0; i<newSyncableObjectsToPullJsonArray.length(); i++) {
 
@@ -254,6 +259,8 @@ public class LDLNSocketClient extends WebSocketClient
 					realm.beginTransaction();
 					realm.insertOrUpdate(syncableObject);
 					realm.commitTransaction();
+
+					LDLN.cachePlaintextObject(userRealm, syncableObject);
 				}
 				JSONArray modifiedSyncableObjectsToPullJsonArray = (responseJsonObj.isNull("modified_objects")) ? new JSONArray() : responseJsonObj.getJSONArray("modified_objects");
 				for (int i=0; i<modifiedSyncableObjectsToPullJsonArray.length(); i++) {
@@ -265,7 +272,15 @@ public class LDLNSocketClient extends WebSocketClient
 					realm.beginTransaction();
 					realm.insertOrUpdate(syncableObject);
 					realm.commitTransaction();
+
+					LDLN.cachePlaintextObject(userRealm, syncableObject);
 				}
+				userRealm.commitTransaction();
+
+				// Send app broadcast so views can receive a refresh notice!
+				Intent intent = new Intent(LDLN.BROADCAST_KEY);
+				intent.putExtra("message", LDLN.BroadcastMessageType.SYNCABLE_OBJECTS_REFRESHED);
+				LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
 				
 				// Identify the objects that the server doesn't have, and send them up
 				JSONArray newSyncableObjectsToPushJsonArray = new JSONArray();
