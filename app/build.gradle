@@ -33,3 +33,19 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     compile(name:'WhirlyGlobeMaply', ext:'aar')
 }
+
+// lines below this comment are to
+// avoid duplicate conflict with rncryptor-native
+// see: http://stackoverflow.com/a/39584838/604003
+import com.android.build.gradle.internal.pipeline.TransformTask
+
+def deleteDuplicateJniFiles() {
+    def files = fileTree("${buildDir}/intermediates/exploded-aar/WhirlyGlobeMaply/jni/") {
+        include "**/libgnustl_shared.so"
+    }
+    files.each { it.delete() }
+}
+
+tasks.withType(TransformTask) { pkgTask ->
+    pkgTask.doFirst { deleteDuplicateJniFiles() }
+}

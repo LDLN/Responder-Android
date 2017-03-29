@@ -23,11 +23,12 @@ import java.util.ArrayList;
 
 import co.ldln.android.sdk.LDLN;
 import co.ldln.android.sdk.LDLN.LoginListener;
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentManager.OnBackStackChangedListener;
-import android.app.FragmentTransaction;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -47,7 +48,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements LoginListener, OnBackStackChangedListener, LDLN.InitiateSyncListener {
+public class MainActivity extends FragmentActivity implements LoginListener, OnBackStackChangedListener, LDLN.InitiateSyncListener {
 	private ArrayList<FragmentId> mNavItems;
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -68,7 +69,7 @@ public class MainActivity extends Activity implements LoginListener, OnBackStack
 		super.onCreate(null);
 		setContentView(R.layout.drawer_layout);
 
-		mFragmentManager = getFragmentManager();
+		mFragmentManager = getSupportFragmentManager();
 		mFragmentManager.addOnBackStackChangedListener(this);
 
 		// Set up navigation bar based on session state
