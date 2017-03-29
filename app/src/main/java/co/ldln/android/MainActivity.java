@@ -128,7 +128,12 @@ public class MainActivity extends FragmentActivity implements LoginListener, OnB
 				new IntentFilter(LDLN.BROADCAST_KEY));
 
 		if (LDLN.isLoggedIn()) {
-			this.openFragment(FragmentId.OBJECT_TYPES, null);
+			if (savedInstanceState != null && mFragmentManager.getBackStackEntryCount() > 0) {
+				Fragment currentFragment = mFragmentManager.findFragmentById(R.id.content_frame);
+				mFragmentManager.beginTransaction().detach(currentFragment).attach(currentFragment).commit();
+			} else {
+				this.openFragment(FragmentId.OBJECT_TYPES, null);
+			}
 		} else {
 			this.openFragment(FragmentId.LOG_IN, null);
 		}
@@ -178,6 +183,11 @@ public class MainActivity extends FragmentActivity implements LoginListener, OnB
 			fragmentTransaction = mFragmentManager.beginTransaction()
 					.add(R.id.content_frame, fragment);
 		} else {
+			// If it's a map fragment, reuse any previous instance of it that may exist
+			if (selectedItem == FragmentId.MAP) {
+				Fragment tmpFrag = mFragmentManager.findFragmentByTag(selectedItem.toString());
+				fragment = (tmpFrag == null) ? fragment : tmpFrag;
+			}
 			fragmentTransaction = mFragmentManager.beginTransaction()
 					.replace(R.id.content_frame, fragment);
 		}

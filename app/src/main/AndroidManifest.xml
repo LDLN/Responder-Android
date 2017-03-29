@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="16" />
     
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -20,6 +20,7 @@
         <activity
             android:name=".MainActivity"
             android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_sample" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

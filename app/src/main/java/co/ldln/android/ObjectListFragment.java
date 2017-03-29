@@ -26,7 +26,7 @@ import co.ldln.android.sdk.LDLN.ListSyncableObjectsListener;
 import co.ldln.android.sdk.PlaintextObject;
 import co.ldln.android.sdk.SyncableObject;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;

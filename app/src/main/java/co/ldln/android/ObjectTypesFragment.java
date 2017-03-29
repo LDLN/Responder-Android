@@ -25,7 +25,7 @@ import co.ldln.android.sdk.LDLN;
 import co.ldln.android.sdk.LDLN.ListSchemasListener;
 import co.ldln.android.sdk.Schema;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;

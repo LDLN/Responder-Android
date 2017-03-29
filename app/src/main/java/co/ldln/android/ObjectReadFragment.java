@@ -28,7 +28,7 @@ import co.ldln.android.sdk.PlaintextObject;
 import co.ldln.android.sdk.Schema;
 import co.ldln.android.sdk.SchemaField;
 import co.ldln.android.sdk.SyncableObject;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;

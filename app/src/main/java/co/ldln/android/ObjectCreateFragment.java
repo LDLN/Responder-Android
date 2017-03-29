@@ -31,7 +31,7 @@ import co.ldln.android.sdk.LDLN.ReadSchemaListener;
 import co.ldln.android.sdk.LDLN.SaveSyncableObjectListener;
 import co.ldln.android.sdk.Schema;
 import co.ldln.android.sdk.SchemaField;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;

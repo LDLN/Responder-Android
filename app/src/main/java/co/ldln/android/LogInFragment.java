@@ -21,7 +21,7 @@ package co.ldln.android;
 
 import co.ldln.android.sdk.LDLN;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;

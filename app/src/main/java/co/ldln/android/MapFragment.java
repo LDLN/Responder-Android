@@ -109,8 +109,7 @@ public class MapFragment extends GlobeMapFragment implements MapController.Gestu
 
 				// No explanation needed, we can request the permission.
 
-				ActivityCompat.requestPermissions(mActivity,
-						new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+				requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
 						100);
 
 				// MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
@@ -135,7 +134,7 @@ public class MapFragment extends GlobeMapFragment implements MapController.Gestu
 		for (File f : dir.listFiles()) {
 			if (f.isFile()) {
 				String name = f.getName();
-				Log.d("LDLN Dir", name);
+				//Log.d("LDLN Dir", name);
 				if (name.substring(name.lastIndexOf('.') + 1).equals("mbtiles"))
 					filePath = dir + "/" + name;
 			}
@@ -149,6 +148,11 @@ public class MapFragment extends GlobeMapFragment implements MapController.Gestu
 			LDLNVectorSimpleStyleGenerator vectorStyleSimpleGenerator = new LDLNVectorSimpleStyleGenerator(mActivity, mapControl);
 			MapboxVectorTileSource mapboxVectorTileSource = new MapboxVectorTileSource(mbTiles, vectorStyleSimpleGenerator);
 			QuadPagingLayer quadPagingLayer = new QuadPagingLayer(mapControl, new SphericalMercatorCoordSystem(), mapboxVectorTileSource);
+
+			// Set number of threads to use
+			quadPagingLayer.setSimultaneousFetches(8);
+			quadPagingLayer.setUseParentTileBounds(true);
+			quadPagingLayer.setTileHeightRange(0.0062, 100);
 
 			// Set controller to be gesture delegate.
 			// Needed to allow selection.
@@ -198,19 +202,19 @@ public class MapFragment extends GlobeMapFragment implements MapController.Gestu
 	@Override
 	public void userDidTap(MapController mapController, Point2d loc, Point2d screenLoc) {
 		// Log the various data points associated with the tap
-		Log.d("Map Tapped", "Loc | x: " + loc.getX() + " y: " + loc.getY() + " z: " + mapControl.getPositionGeo().getZ());
-		Log.d("Map Tapped", "Latlon | lon: " + loc.toDegrees().getX() + " lat: " + loc.toDegrees().getY());
-		Log.d("Map Tapped", "ScreenLoc | x: " + screenLoc.getX() + " y: " + screenLoc.getY());
+		//Log.d("Map Tapped", "Loc | x: " + loc.getX() + " y: " + loc.getY() + " z: " + mapControl.getPositionGeo().getZ());
+		//Log.d("Map Tapped", "Latlon | lon: " + loc.toDegrees().getX() + " lat: " + loc.toDegrees().getY());
+		//Log.d("Map Tapped", "ScreenLoc | x: " + screenLoc.getX() + " y: " + screenLoc.getY());
 	}
 
 	@Override
 	public void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc) {
 		// Log the various data points associated with the tap
-		Log.d("Map Longpressed", "Loc | x: " + loc.getX() + " y: " + loc.getY() + " z: " + mapControl.getPositionGeo().getZ());
-		Log.d("Map Longpressed", "Latlon | lon: " + loc.toDegrees().getX() + " lat: " + loc.toDegrees().getY());
-		Log.d("Map Longpressed", "ScreenLoc | x: " + screenLoc.getX() + " y: " + screenLoc.getY());
+		//Log.d("Map Longpressed", "Loc | x: " + loc.getX() + " y: " + loc.getY() + " z: " + mapControl.getPositionGeo().getZ());
+		//Log.d("Map Longpressed", "Latlon | lon: " + loc.toDegrees().getX() + " lat: " + loc.toDegrees().getY());
+		//Log.d("Map Longpressed", "ScreenLoc | x: " + screenLoc.getX() + " y: " + screenLoc.getY());
 		if (selObjs != null) {
-			Log.d("Map Longpressed", selObjs.toString());
+			//Log.d("Map Longpressed", selObjs.toString());
 		} else {
 			Bundle args = new Bundle();
 			args.putString("map_location_lat", String.valueOf(loc.toDegrees().getY()));
@@ -224,13 +228,13 @@ public class MapFragment extends GlobeMapFragment implements MapController.Gestu
 	@Override
 	public void userDidSelect(MapController mapControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc) {
 		// Log the various data points associated with the selection
-		Log.d("Map Selected", "Loc | x: " + loc.getX() + " y: " + loc.getY() + " z: " + mapControl.getPositionGeo().getZ());
-		Log.d("Map Selected", "Latlon | lon: " + loc.toDegrees().getX() + " lat: " + loc.toDegrees().getY());
-		Log.d("Map Selected", "ScreenLoc | x: " + screenLoc.getX() + " y: " + screenLoc.getY());
+		//Log.d("Map Selected", "Loc | x: " + loc.getX() + " y: " + loc.getY() + " z: " + mapControl.getPositionGeo().getZ());
+		//Log.d("Map Selected", "Latlon | lon: " + loc.toDegrees().getX() + " lat: " + loc.toDegrees().getY());
+		//Log.d("Map Selected", "ScreenLoc | x: " + screenLoc.getX() + " y: " + screenLoc.getY());
 
 		// Handle selection of specific object types
 		if (selObjs != null) {
-			Log.d("Map Selected", selObjs.toString());
+			//Log.d("Map Selected", selObjs.toString());
 			if (selObjs[0].selObj.getClass().equals(LDLNScreenMarker.class)) {
 				LDLNScreenMarker marker = (LDLNScreenMarker) selObjs[0].selObj;
 				LDLNMarkerAttributes properties = (LDLNMarkerAttributes) marker.userObject;
